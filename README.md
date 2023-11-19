@@ -8,6 +8,8 @@ auto eth0
 iface eth0 inet dhcp
 ```
 
+![](/SS/1a.JPG "")
+
 ### DHCP Relay (Di router)
 
 #### isc-dhcp-relay
@@ -24,6 +26,7 @@ INTERFACES="eth1 eth2 eth3 eth4"
 # Additional options that are passed to the DHCP relay daemon?
 OPTIONS=""
 ```
+![](/SS/1b.JPG "")
 
 #### sysctl.conf
 
@@ -32,6 +35,8 @@ Aktifkan ip forwarding.
 ```
 net.ipv4.ip_forward=1
 ```
+
+![](/SS/1c.JPG "")
 
 ## Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80 (2)
 ## Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168 (3)
@@ -66,6 +71,8 @@ subnet 192.189.4.0 netmask 255.255.255.0 {
 ```
 
 `MASALAH : ERROR Code dari DHCP Server hanya muncul di log linux dan harus mencari artinya di internet.`
+
+![](/SS/3a.JPG "")
 
 ## Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut (4)
 
@@ -112,6 +119,8 @@ options {
 
 `MASALAH : Karena DHCP server butuh waktu untuk setup, client harus direstart setelah DHCP Server selesai untuk mendapatkan IP.`
 
+
+
 ## Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal yang dialokasikan untuk peminjaman alamat IP selama 96 menit (5)
 
 Berikut pengaturan di DHCP Server. Nilai variabel adalah dalam satuan detik.
@@ -129,6 +138,8 @@ Berikut pengaturan di DHCP Server. Nilai variabel adalah dalam satuan detik.
     default-lease-time 720;
     max-lease-time 5760;
 ```
+
+![](/SS/4a.JPG "")
 
 ## Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3. (6)
 
@@ -421,6 +432,27 @@ auth_basic_user_file /etc/nginx/rahasisakita/.htpasswd;
 ```
 
 Untuk mengakses, salah satu client harus diganti ipnya menjadi sesuai dengan soal.
+
+## `SS Hasil`
+
+- ##### IP Salah
+
+![](/SS/12-ip.JPG "")
+
+- ##### Password
+
+![](/SS/12-pass.JPG "")
+
+
+- ##### http://granz.channel.b22.com
+
+![](/SS/12-done.JPG "")
+
+
+- ##### http://granz.channel.b22.com dengan /its
+
+![](/SS/12-its-1.JPG "")
+
 -----
 
 
