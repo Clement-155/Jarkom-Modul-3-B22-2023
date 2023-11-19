@@ -444,6 +444,279 @@ mysql -uroot -D mysql -e "source ./tambah_user.sql"
 
 ----
 
+## Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern. (13)
+
+### Script.sh di root digunakan untuk menginstall mariadb-server dan memulai service mysql
+```
+apt-get update
+
+apt-get install mariadb-server -y
+
+service mysql start
+
+cp /root/my.cnf /etc/mysql/
+
+cp /root/50-server.cnf /etc/mysql/mariadb.conf.d/
+```
+
+Pada script di atas juga diberikan perintah untuk memasukkan file konfigurasi mysql, meliputi my.cnf dan 50-server.cnf
+
+Berikut isi dari file tersebut
+### my.cnf
+```
+# The MariaDB configuration file
+#
+# The MariaDB/MySQL tools read configuration files in the following order:
+# 1. "/etc/mysql/mariadb.cnf" (this file) to set global defaults,
+# 2. "/etc/mysql/conf.d/*.cnf" to set global options.
+# 3. "/etc/mysql/mariadb.conf.d/*.cnf" to set MariaDB-only options.
+# 4. "~/.my.cnf" to set user-specific options.
+#
+# If the same option is defined multiple times, the last one will apply.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+
+#
+# This group is read both both by the client and the server
+# use it for options that affect everything
+#
+[client-server]
+
+# Import all .cnf files from configuration directory
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mariadb.conf.d/
+
+[mysqld]
+skip-networking=0
+skip-bind-address
+```
+
+### 50-server.cnf
+```
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+#
+# See the examples of server my.cnf files in /usr/share/mysql
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+
+#
+# * Basic Settings
+#
+user                    = mysql
+pid-file                = /run/mysqld/mysqld.pid
+socket                  = /run/mysqld/mysqld.sock
+#port                   = 3306
+basedir                 = /usr
+datadir                 = /var/lib/mysql
+tmpdir                  = /tmp
+lc-messages-dir         = /usr/share/mysql
+#skip-external-locking
+
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+bind-address            = 0.0.0.0
+
+#
+# * Fine Tuning
+#
+#key_buffer_size        = 16M
+#max_allowed_packet     = 16M
+#thread_stack           = 192K
+#thread_cache_size      = 8
+# This replaces the startup script and checks MyISAM tables if needed
+# the first time they are touched
+#myisam_recover_options = BACKUP
+#max_connections        = 100
+#table_cache            = 64
+#thread_concurrency     = 10
+
+#
+# * Query Cache Configuration
+#
+#query_cache_limit      = 1M
+query_cache_size        = 16M
+
+#
+# * Logging and Replication
+#
+# Both location gets rotated by the cronjob.
+# Be aware that this log type is a performance killer.
+# As of 5.1 you can enable the log at runtime!
+#general_log_file       = /var/log/mysql/mysql.log
+#general_log            = 1
+#
+# Error log - should be very few entries.
+#
+log_error = /var/log/mysql/error.log
+#
+# Enable the slow query log to see queries with especially long duration
+#slow_query_log_file    = /var/log/mysql/mariadb-slow.log
+#long_query_time        = 10
+#log_slow_rate_limit    = 1000
+#log_slow_verbosity     = query_plan
+#log-queries-not-using-indexes
+#
+# The following can be used as easy to replay backup logs or for replication.
+# note: if you are setting up a replication slave, see README.Debian about
+#       other settings you may need to change.
+#server-id              = 1
+#log_bin                = /var/log/mysql/mysql-bin.log
+expire_logs_days        = 10
+#max_binlog_size        = 100M
+#binlog_do_db           = include_database_name
+#binlog_ignore_db       = exclude_database_name
+
+#
+# * Security Features
+#
+# Read the manual, too, if you want chroot!
+#chroot = /var/lib/mysql/
+#
+# For generating SSL certificates you can use for example the GUI tool "tinyca".
+#
+#ssl-ca = /etc/mysql/cacert.pem
+#ssl-cert = /etc/mysql/server-cert.pem
+#ssl-key = /etc/mysql/server-key.pem
+#
+# Accept only connections using the latest and most secure TLS protocol version.
+# ..when MariaDB is compiled with OpenSSL:
+#ssl-cipher = TLSv1.2
+# ..when MariaDB is compiled with YaSSL (default in Debian):
+#ssl = on
+
+#
+# * Character sets
+#
+# MySQL/MariaDB default is Latin1, but in Debian we rather default to the full
+# utf8 4-byte character set. See also client.cnf
+#
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_general_ci
+
+#
+# * InnoDB
+#
+# InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
+# Read the manual for more InnoDB related options. There are many!
+
+#
+# * Unix socket authentication plugin is built-in since 10.0.22-6
+#
+# Needed so the root database user can authenticate without a password but
+# only when running as the unix root user.
+#
+# Also available for other users if required.
+# See https://mariadb.com/kb/en/unix_socket-authentication-plugin/
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.3 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.3]
+```
+
+Kemudian pada masing-masing Frieren, Flamme, dan Fern diinstal mariadb-client
+```
+apt-get update
+
+apt-get install mariadb-client -y
+```
+
+Dan dapat dicek menggunakan perintah berikut:
+```
+mariadb --host=(IP Database) --port=3306 --user=xxx --password=xxx
+```
+
+## Frieren, Flamme, dan Fern memiliki Riegel Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer (14)
+
+### script.sh berisi konfigurasi untuk laravel yang meliputi clone dari git dan konfigurasi .env
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+apt-get update && apt-get install git -y
+apt-get install mariadb-client -y
+
+apt-get install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg2
+curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+
+apt-get update
+apt-get install php8.0-mbstring php8.0-xml php8.0-cli php8.0-common php8.0-intl php8.0-opcache php8.0-readline php8.0-mysql php8.0-fpm php8.0-curl unzip wget -y
+apt-get install nginx -y
+
+wget https://getcomposer.org/download/2.0.13/composer.phar
+chmod +x composer.phar
+mv composer.phar /usr/bin/composer
+
+service php8.0-fpm start
+
+cd /var/www
+git clone https://github.com/martuafernando/laravel-praktikum-jarkom.git
+
+cd /var/www/laravel-praktikum-jarkom 
+composer update 
+composer install
+
+cp ~/.env /var/www/laravel-praktikum-jarkom
+php artisan migrate:fresh
+php artisan db:seed --class=AiringsTableSeeder
+php artisan jwt:secret
+
+chown -R www-data:www-data /var/www
+
+service nginx restart
+
+php artisan key:generate
+echo 'server {
+
+        listen 8004;
+
+        root /var/www/laravel-praktikum-jarkom/public;
+
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
+        }
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+        error_log /var/log/nginx/laravelb22_error.log;
+        access_log /var/log/nginx/laravelb22_access.log;
+ }' > /etc/nginx/sites-available/laravelb22
+
+ln -s /etc/nginx/sites-available/laravelb22 /etc/nginx/sites-enabled/
+
+chown -R www-data.www-data /var/www/laravel-praktikum-jarkom/storage
+
+service php8.0-fpm restart
+service nginx restart
+```
+
 ## Riegel Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire.
 
 ```
