@@ -420,7 +420,7 @@ auth_basic_user_file /etc/nginx/rahasisakita/.htpasswd;
     deny  all;
 ```
 
-
+Untuk mengakses, salah satu client harus diganti ipnya menjadi sesuai dengan soal.
 -----
 
 
